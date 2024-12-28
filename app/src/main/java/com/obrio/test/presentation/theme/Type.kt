@@ -1,4 +1,4 @@
-package com.obrio.test.ui.theme
+package com.obrio.test.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -70,5 +70,11 @@ dependencies {
     //Room
     implementation(libs.androidx.room)
     ksp(libs.androidx.room)
+}
 
+configurations {
+    create("cleanedAnnotations")
+    implementation {
+        exclude(group = "org.jetbrains", module = "annotations")
+    }
 }

@@ -62,6 +62,7 @@ dependencies {
     //Hilt
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation)
 
     //Retrofit
     implementation(libs.retrofit)
@@ -70,6 +71,10 @@ dependencies {
     //Room
     implementation(libs.androidx.room)
     ksp(libs.androidx.room)
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 configurations {

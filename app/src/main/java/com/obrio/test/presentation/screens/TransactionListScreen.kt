@@ -1,16 +1,41 @@
 package com.obrio.test.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.obrio.test.R
+import com.obrio.test.presentation.components.PositiveNumberInputField
 import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
 
 /**
@@ -30,13 +55,76 @@ import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
 
 @Composable
 fun TransactionListScreen() {
+    var showPopup by rememberSaveable { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         BitcoinPriceText()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Your balance: 0",
+                style = MaterialTheme.typography.labelLarge
+            )
+            TextButton({
+                showPopup = true
+            }) {
+                Text(stringResource(R.string.button_top_up_balance))
+            }
+        }
+
+        if (showPopup) {
+            TopUpBalancePopUp(hidePopUp = { showPopup = false })
+        }
     }
 }
+
+/**
+ * A popup dialog that allows the user to input an amount to top up their balance.
+ *
+ * Features:
+ * - Displays a text field for entering a positive number.
+ * - Provides a button to add the amount and close the popup.
+ * - The popup is focusable, allowing the keyboard to appear when the text field is focused.
+ *
+ * @param hidePopUp A callback function to close the popup when the user finishes the action.
+ */
+@Composable
+fun TopUpBalancePopUp(
+    hidePopUp: () -> Unit
+) {
+    var inputAmount by rememberSaveable { mutableStateOf(0.0) }
+
+    Popup(
+        alignment = Alignment.Center,
+        onDismissRequest = hidePopUp,
+        properties = PopupProperties(focusable = true)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.background(Color.LightGray)
+        ) {
+            Text(stringResource(R.string.text_top_up_balance))
+            PositiveNumberInputField(
+                inputAmount,
+                { inputAmount = it }
+            )
+            Button({
+                hidePopUp()
+            }) {
+                Text("Add")
+            }
+        }
+    }
+}
+
 
 /**
  * A Composable that displays the current Bitcoin price.
@@ -52,16 +140,18 @@ fun TransactionListScreen() {
  * @param viewModel The [BitcoinPriceViewModel] which is injected using Hilt
  */
 @Composable
-fun BitcoinPriceText(viewModel: BitcoinPriceViewModel = hiltViewModel()){
+fun BitcoinPriceText(viewModel: BitcoinPriceViewModel = hiltViewModel()) {
     val bitcoinPriceState = viewModel.bitcoinPrice.collectAsState().value
 
     when {
         bitcoinPriceState.isLoading -> {
             CircularProgressIndicator()
         }
+
         bitcoinPriceState.error.isNotEmpty() -> {
             Text(text = bitcoinPriceState.error, color = MaterialTheme.colorScheme.error)
         }
+
         bitcoinPriceState.data != null -> {
             Text(
                 text = "Bitcoin Price: $${bitcoinPriceState.data?.usd}",
@@ -69,4 +159,10 @@ fun BitcoinPriceText(viewModel: BitcoinPriceViewModel = hiltViewModel()){
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun TransactionListScreenPreview(){
+    TransactionListScreen()
 }

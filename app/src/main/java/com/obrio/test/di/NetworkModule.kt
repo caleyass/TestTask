@@ -1,8 +1,10 @@
 package com.obrio.test.di
 
+import com.obrio.test.data.local.dao.BitcoinDataDao
 import com.obrio.test.data.network.service.BitcoinApiService
 import com.obrio.test.data.repository.BitcoinRepositoryImpl
 import com.obrio.test.domain.repository.BitcoinRepository
+import com.obrio.test.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,8 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val BASE_URL = "https://api.coindesk.com/v1/bpi/"
 
     @Provides
     @Singleton
@@ -34,7 +34,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideBitcoinRepository(apiService: BitcoinApiService) : BitcoinRepository{
-        return BitcoinRepositoryImpl(apiService = apiService)
+    fun provideBitcoinRepository(
+        apiService: BitcoinApiService,
+        bitcoinDataDao: BitcoinDataDao
+    ): BitcoinRepository {
+        return BitcoinRepositoryImpl(
+            bitcoinApiService = apiService,
+            bitcoinDao = bitcoinDataDao
+        )
     }
 }

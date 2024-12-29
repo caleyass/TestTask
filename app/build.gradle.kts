@@ -69,8 +69,9 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
 
     //Room
-    implementation(libs.androidx.room)
-    ksp(libs.androidx.room)
+    implementation(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }
 
 hilt {

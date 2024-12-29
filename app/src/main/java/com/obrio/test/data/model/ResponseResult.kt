@@ -1,4 +1,4 @@
-package com.obrio.test.utils.model
+package com.obrio.test.data.model
 
 /**
  * A sealed class representing the result of an operation.

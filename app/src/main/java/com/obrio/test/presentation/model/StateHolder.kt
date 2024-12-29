@@ -1,4 +1,4 @@
-package com.obrio.test.utils.model
+package com.obrio.test.presentation.model
 
 /**
  * A generic interface that represents the state of a data object.

@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 class BitcoinRepositoryImpl @Inject constructor(
     private val bitcoinApiService: BitcoinApiService,
-    private val bitcoinDao : BitcoinDataDao
+    private val bitcoinDao: BitcoinDataDao
 ) : BitcoinRepository {
 
     /**
@@ -54,7 +54,7 @@ class BitcoinRepositoryImpl @Inject constructor(
                 ResponseResult.Success(lastBitcoinPrice.toBitcoinPrice())
             } ?: ResponseResult.Error("Empty bitcoin price response")
         } catch (e: Exception) {
-            ResponseResult.Error("Data store error: ${e.message}")
+            ResponseResult.Error("Get bitcoin price from db error: ${e.message}")
         }
     }
 
@@ -76,7 +76,10 @@ class BitcoinRepositoryImpl @Inject constructor(
                 response.body()?.let {
                     val bitcoinPrice = it.toBitcoinPrice()
                     Log.i(BITCOIN_REPOSITORY_TAG, "getBitcoinPrice: ${bitcoinPrice.usd}")
-                    saveLastFetchTimeAndBitcoinPrice(timeStamp = System.currentTimeMillis(), bitcoinPrice = bitcoinPrice.usd)
+                    saveLastFetchTimeAndBitcoinPrice(
+                        timeStamp = System.currentTimeMillis(),
+                        bitcoinPrice = bitcoinPrice.usd
+                    )
                     ResponseResult.Success(bitcoinPrice)
                 } ?: ResponseResult.Error("Empty network response body")
             } else {
@@ -97,13 +100,14 @@ class BitcoinRepositoryImpl @Inject constructor(
      * @param timeStamp The timestamp of the last fetch.
      * @param bitcoinPrice The fetched Bitcoin price.
      */
-    private suspend fun saveLastFetchTimeAndBitcoinPrice(timeStamp: Long, bitcoinPrice: Double){
+    private suspend fun saveLastFetchTimeAndBitcoinPrice(timeStamp: Long, bitcoinPrice: Double) {
         try {
             bitcoinDao.saveBitcoinData(BitcoinDataEntity(1, timeStamp, bitcoinPrice))
-            Log.d(BITCOIN_REPOSITORY_TAG, "saveLastFetchTimeAndBitcoinPrice: Successfully saved ($timeStamp, $bitcoinPrice)")
-        } catch (
-            e:Exception
-        ){
+            Log.d(
+                BITCOIN_REPOSITORY_TAG,
+                "saveLastFetchTimeAndBitcoinPrice: Successfully saved ($timeStamp, $bitcoinPrice)"
+            )
+        } catch (e: Exception) {
             Log.e(BITCOIN_REPOSITORY_TAG, "saveLastFetchTimeAndBitcoinPrice: ${e.message}")
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.obrio.test.R
 import com.obrio.test.presentation.components.PositiveNumberInputField
+import com.obrio.test.presentation.viewmodels.BalanceViewModel
 import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
 
 /**
@@ -57,9 +58,12 @@ import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
 
 @Composable
 fun TransactionListScreen(
-    onNavigateToAddTransactionScreen : () -> Unit
+    onNavigateToAddTransactionScreen: () -> Unit,
+    viewModel: BalanceViewModel = hiltViewModel()
 ) {
     var showPopup by rememberSaveable { mutableStateOf(false) }
+    var inputTopUpAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
+    val balance = viewModel.balance.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -73,15 +77,18 @@ fun TransactionListScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                "Your balance: 0",
-                style = MaterialTheme.typography.labelLarge
-            )
+            if(balance.data != null ){
+                Text(
+                    "Your balance: ${balance.data?.amount}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
             TextButton({
                 showPopup = true
             }) {
                 Text(stringResource(R.string.button_top_up_balance))
             }
+            //BalanceBox(showPopup = {showPopup = true})
             Button({
                 onNavigateToAddTransactionScreen()
             }) {
@@ -90,9 +97,21 @@ fun TransactionListScreen(
         }
 
         if (showPopup) {
-            TopUpBalancePopUp(hidePopUp = { showPopup = false })
+            TopUpBalancePopUp(hidePopUp = {
+                showPopup = false
+                inputTopUpAmount = it
+                viewModel.addBalance(it)
+            })
         }
     }
+}
+
+@Composable
+fun BalanceBox(
+
+    showPopup : () -> Unit
+) {
+
 }
 
 /**
@@ -107,13 +126,12 @@ fun TransactionListScreen(
  */
 @Composable
 fun TopUpBalancePopUp(
-    hidePopUp: () -> Unit
+    hidePopUp: (Double) -> Unit
 ) {
     var inputAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
 
     Popup(
         alignment = Alignment.Center,
-        onDismissRequest = hidePopUp,
         properties = PopupProperties(focusable = true)
     ) {
         Column(
@@ -126,7 +144,7 @@ fun TopUpBalancePopUp(
                 { inputAmount = it }
             )
             Button({
-                hidePopUp()
+                hidePopUp(inputAmount)
             }) {
                 Text("Add")
             }

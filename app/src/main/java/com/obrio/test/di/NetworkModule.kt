@@ -31,16 +31,4 @@ object NetworkModule {
     fun provideApiService(retrofit: Retrofit): BitcoinApiService {
         return retrofit.create(BitcoinApiService::class.java)
     }
-
-    @Provides
-    @Singleton
-    fun provideBitcoinRepository(
-        apiService: BitcoinApiService,
-        bitcoinDataDao: BitcoinDataDao
-    ): BitcoinRepository {
-        return BitcoinRepositoryImpl(
-            bitcoinApiService = apiService,
-            bitcoinDao = bitcoinDataDao
-        )
-    }
 }

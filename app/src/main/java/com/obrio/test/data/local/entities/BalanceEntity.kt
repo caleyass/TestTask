@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "balance")
 data class BalanceEntity(
     @PrimaryKey val id: Int = 1,
-    val amount: Double
+    val amount: Double = 0.0
 )

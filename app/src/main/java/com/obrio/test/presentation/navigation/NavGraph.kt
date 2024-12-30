@@ -18,7 +18,7 @@ object AddTransaction
 fun NavGraph(navController: NavHostController) {
     NavHost(navController, startDestination = TransactionList){
         composable<TransactionList>{
-            TransactionListScreen { navController.navigate(AddTransaction) }
+            TransactionListScreen ( onNavigateToAddTransactionScreen = { navController.navigate(AddTransaction) })
         }
         composable<AddTransaction> {
             AddTransactionScreen {navController.safeNavigateBackComposable()}

@@ -11,7 +11,7 @@ import com.obrio.test.data.local.entities.BalanceEntity
 import com.obrio.test.data.local.entities.BitcoinDataEntity
 import com.obrio.test.data.local.entities.TransactionEntity
 
-@Database(entities = [BitcoinDataEntity::class, TransactionEntity::class, BalanceEntity::class], version = 2)
+@Database(entities = [BitcoinDataEntity::class, TransactionEntity::class, BalanceEntity::class], version = 2, exportSchema = false)
 @TypeConverters(TransactionCategoryConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bitcoinDataDao(): BitcoinDataDao

@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.obrio.test.data.network.service.BitcoinApiService
+import com.obrio.test.presentation.navigation.NavGraph
 import com.obrio.test.presentation.screens.TransactionListScreen
 import com.obrio.test.presentation.theme.TestTaskTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,9 +28,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TestTaskTheme {
+                val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
-                        TransactionListScreen()
+                        NavGraph(navController)
                     }
                 }
             }

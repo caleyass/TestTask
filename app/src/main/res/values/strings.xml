@@ -2,7 +2,13 @@
     <string name="app_name">TestTask</string>
 
     <string name="button_top_up_balance">Top up balance</string>
-
     <string name="text_top_up_balance">Top up balance on</string>
+
+    <string name="button_add_transaction">Add transaction</string>
+
+    <string name="button_add">Add</string>
+
+    <string name="text_transaction_category">Transaction Category</string>
+    <string name="text_expand_menu">Expand Menu</string>
 
 </resources>

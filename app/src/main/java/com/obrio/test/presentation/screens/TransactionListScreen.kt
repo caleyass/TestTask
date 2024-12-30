@@ -2,6 +2,8 @@ package com.obrio.test.presentation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -54,7 +56,9 @@ import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
  */
 
 @Composable
-fun TransactionListScreen() {
+fun TransactionListScreen(
+    onNavigateToAddTransactionScreen : () -> Unit
+) {
     var showPopup by rememberSaveable { mutableStateOf(false) }
 
     Column(
@@ -78,6 +82,11 @@ fun TransactionListScreen() {
             }) {
                 Text(stringResource(R.string.button_top_up_balance))
             }
+            Button({
+                onNavigateToAddTransactionScreen()
+            }) {
+                Text(stringResource(R.string.button_add_transaction))
+            }
         }
 
         if (showPopup) {
@@ -100,7 +109,7 @@ fun TransactionListScreen() {
 fun TopUpBalancePopUp(
     hidePopUp: () -> Unit
 ) {
-    var inputAmount by rememberSaveable { mutableStateOf(0.0) }
+    var inputAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
 
     Popup(
         alignment = Alignment.Center,
@@ -140,29 +149,35 @@ fun TopUpBalancePopUp(
  * @param viewModel The [BitcoinPriceViewModel] which is injected using Hilt
  */
 @Composable
-fun BitcoinPriceText(viewModel: BitcoinPriceViewModel = hiltViewModel()) {
+fun BitcoinPriceText(
+    viewModel: BitcoinPriceViewModel = hiltViewModel()
+) {
     val bitcoinPriceState = viewModel.bitcoinPrice.collectAsState().value
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        when {
+            bitcoinPriceState.isLoading -> {
+                CircularProgressIndicator()
+            }
 
-    when {
-        bitcoinPriceState.isLoading -> {
-            CircularProgressIndicator()
-        }
+            bitcoinPriceState.error.isNotEmpty() -> {
+                Text(text = bitcoinPriceState.error, color = MaterialTheme.colorScheme.error)
+            }
 
-        bitcoinPriceState.error.isNotEmpty() -> {
-            Text(text = bitcoinPriceState.error, color = MaterialTheme.colorScheme.error)
-        }
-
-        bitcoinPriceState.data != null -> {
-            Text(
-                text = "Bitcoin Price: $${bitcoinPriceState.data?.usd}",
-                style = MaterialTheme.typography.labelMedium
-            )
+            bitcoinPriceState.data != null -> {
+                Text(
+                    text = "Bitcoin Price: $${bitcoinPriceState.data?.usd}",
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
         }
     }
 }
 
 @Preview
 @Composable
-fun TransactionListScreenPreview(){
-    TransactionListScreen()
+fun TransactionListScreenPreview() {
+    TransactionListScreen({})
 }

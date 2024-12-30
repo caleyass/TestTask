@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface FinanceRepository {
     suspend fun addTransaction(transaction: Transaction) : ResponseResult<String>
 
-    suspend fun getAllTransactions(): ResponseResult<List<Transaction>>
+    suspend fun getAllTransactions(): Flow<ResponseResult<List<Transaction>>>
 
     suspend fun addBalance(balance: Balance)
 

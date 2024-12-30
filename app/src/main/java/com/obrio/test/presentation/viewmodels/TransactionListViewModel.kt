@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TransactionListViewModel @Inject constructor(
-    private val getAllTransactionUseCase: GetAllTransactionUseCase
+    private val getAllTransactionUseCase: GetAllTransactionUseCase,
 ) : ViewModel() {
     private val _transactionList = MutableStateFlow(TransactionListStateHolder(isLoading = true))
     val transactionList: StateFlow<TransactionListStateHolder> get() = _transactionList

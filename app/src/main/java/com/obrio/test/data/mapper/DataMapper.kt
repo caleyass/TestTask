@@ -31,6 +31,12 @@ fun Transaction.toTransactionEntity(): TransactionEntity =
         timestamp = timestamp
     )
 
+fun TransactionEntity.toTransaction(): Transaction =
+    Transaction(
+        amount = amount,
+        category = category,
+        timestamp = timestamp
+    )
 
 fun Balance.toBalanceEntity(): BalanceEntity =
     BalanceEntity(amount = amount)

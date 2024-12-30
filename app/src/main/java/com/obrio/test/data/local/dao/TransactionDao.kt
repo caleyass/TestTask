@@ -7,11 +7,12 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.obrio.test.data.local.entities.BalanceEntity
 import com.obrio.test.data.local.entities.TransactionEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
 
     @Query("SELECT * FROM transactions ORDER BY timestamp DESC")
-    suspend fun getAllTransactions(): List<TransactionEntity>
+    fun getAllTransactions(): Flow<List<TransactionEntity>>
 
 }

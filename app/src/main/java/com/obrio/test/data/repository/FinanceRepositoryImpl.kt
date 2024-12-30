@@ -5,6 +5,7 @@ import com.obrio.test.data.local.dao.BalanceDao
 import com.obrio.test.data.local.dao.TransactionDao
 import com.obrio.test.data.mapper.toBalance
 import com.obrio.test.data.mapper.toBalanceEntity
+import com.obrio.test.data.mapper.toTransaction
 import com.obrio.test.data.mapper.toTransactionEntity
 import com.obrio.test.data.model.ResponseResult
 import com.obrio.test.domain.model.Balance
@@ -12,6 +13,7 @@ import com.obrio.test.domain.model.Transaction
 import com.obrio.test.domain.repository.FinanceRepository
 import com.obrio.test.utils.AppLogger.Data.FINANCE_REPOSITORY_TAG
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -20,8 +22,8 @@ class FinanceRepositoryImpl @Inject constructor(
     private val transactionDao: TransactionDao
 ) : FinanceRepository {
 
-    override suspend fun addTransaction(transaction: Transaction) : ResponseResult<String> {
-        if(balanceDao.getBalance().amount >= transaction.amount) {
+    override suspend fun addTransaction(transaction: Transaction): ResponseResult<String> {
+        if (balanceDao.getBalance().amount >= transaction.amount) {
             try {
                 //count new balance (minus transaction amount)
                 val currentBalance = balanceDao.getBalance().amount
@@ -56,21 +58,11 @@ class FinanceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllTransactions(): ResponseResult<List<Transaction>> {
+    override suspend fun getAllTransactions(): Flow<ResponseResult<List<Transaction>>> {
         Log.i(FINANCE_REPOSITORY_TAG, "getAllTransactions: Fetching local data...")
-        return try {
-            val allTransactions = transactionDao.getAllTransactions()
-            Log.i(FINANCE_REPOSITORY_TAG, "getAllTransactions: ${allTransactions.size}")
-            val transactions = allTransactions.map { entity ->
-                Transaction(
-                    amount = entity.amount,
-                    category = entity.category,
-                    timestamp = entity.timestamp
-                )
-            }
-            ResponseResult.Success(transactions) // can be with size 0
-        } catch (e: Exception) {
-            ResponseResult.Error("Get transactions error: ${e.message}")
+        return transactionDao.getAllTransactions().map { transactionEntities ->
+            val transactions = transactionEntities.map { it.toTransaction() }
+            ResponseResult.Success(transactions)
         }
     }
 
@@ -81,7 +73,7 @@ class FinanceRepositoryImpl @Inject constructor(
             Log.i(FINANCE_REPOSITORY_TAG, "getBalance: ${balance.amount}")
             ResponseResult.Success(balance)// can be with size 0
         } catch (e: Exception) {
-            Log.e(FINANCE_REPOSITORY_TAG, "getBalance: ${e.message}", )
+            Log.e(FINANCE_REPOSITORY_TAG, "getBalance: ${e.message}")
             ResponseResult.Error("Get balance error: ${e.message}")
         }
     }

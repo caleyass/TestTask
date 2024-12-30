@@ -2,6 +2,8 @@ package com.obrio.test.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.obrio.test.data.local.dao.BalanceDao
 import com.obrio.test.data.local.dao.BitcoinDataDao
 import com.obrio.test.data.local.dao.TransactionDao
@@ -24,7 +26,13 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             Constants.DATABASE_NAME
-        ).fallbackToDestructiveMigration().build()
+        ).addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                db.execSQL("INSERT INTO balance (id, amount) VALUES (1, 0.0)")
+            }
+        })
+            .fallbackToDestructiveMigration().build()
     }
 
     @Provides

@@ -12,6 +12,8 @@ import com.obrio.test.domain.model.Balance
 import com.obrio.test.domain.model.Transaction
 import com.obrio.test.domain.repository.FinanceRepository
 import com.obrio.test.utils.AppLogger.Data.FINANCE_REPOSITORY_TAG
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FinanceRepositoryImpl @Inject constructor(
@@ -72,11 +74,6 @@ class FinanceRepositoryImpl @Inject constructor(
         Log.i(FINANCE_REPOSITORY_TAG, "getBalance: Fetching local data...")
         return try {
             var balanceEntity = balanceDao.getBalance()
-            if (balanceEntity == null) {
-                // Initialize balance if it doesn't exist
-                balanceEntity = BalanceEntity() // Default amount is 0.0
-                balanceDao.updateBalance(balanceEntity)
-            }
             val balance = balanceEntity.toBalance()
             Log.i(FINANCE_REPOSITORY_TAG, "getBalance: ${balance.amount}")
             ResponseResult.Success(balance)// can be with size 0
@@ -84,6 +81,10 @@ class FinanceRepositoryImpl @Inject constructor(
             Log.e(FINANCE_REPOSITORY_TAG, "getBalance: ${e.message}", )
             ResponseResult.Error("Get balance error: ${e.message}")
         }
+    }
+
+    override suspend fun observeBalance(): Flow<Balance> {
+        return balanceDao.observeBalance().map { it.toBalance() }
     }
 
 }

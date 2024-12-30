@@ -19,12 +19,19 @@ class AddTransactionViewModel @Inject constructor(
     val transactionResponse: StateFlow<String?> get() = _transactionResponse
 
     fun addTransaction(transaction: Transaction){
-        viewModelScope.launch {
-            val response = addTransactionUseCase(transaction)
-            when (response){
-                is ResponseResult.Error -> {_transactionResponse.value = response.message}
-                ResponseResult.Loading -> {}
-                is ResponseResult.Success -> {_transactionResponse.value = response.data}
+        if(transaction.amount > 0) {
+            viewModelScope.launch {
+                val response = addTransactionUseCase(transaction)
+                when (response) {
+                    is ResponseResult.Error -> {
+                        _transactionResponse.value = response.message
+                    }
+
+                    ResponseResult.Loading -> {}
+                    is ResponseResult.Success -> {
+                        _transactionResponse.value = response.data
+                    }
+                }
             }
         }
     }

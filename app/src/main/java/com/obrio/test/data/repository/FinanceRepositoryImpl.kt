@@ -3,7 +3,6 @@ package com.obrio.test.data.repository
 import android.util.Log
 import com.obrio.test.data.local.dao.BalanceDao
 import com.obrio.test.data.local.dao.TransactionDao
-import com.obrio.test.data.local.entities.BalanceEntity
 import com.obrio.test.data.mapper.toBalance
 import com.obrio.test.data.mapper.toBalanceEntity
 import com.obrio.test.data.mapper.toTransactionEntity
@@ -21,21 +20,27 @@ class FinanceRepositoryImpl @Inject constructor(
     private val transactionDao: TransactionDao
 ) : FinanceRepository {
 
-    override suspend fun addTransaction(transaction: Transaction) {
-        try {
-            //count new balance (minus transaction amount)
-            val currentBalance = balanceDao.getBalance().amount
-            val newBalance = Balance(currentBalance - transaction.amount)
-            balanceDao.insertTransactionAndUpdateBalance(transaction.toTransactionEntity(), newBalance.toBalanceEntity())
-            Log.d(
-                FINANCE_REPOSITORY_TAG,
-                "addTransaction: Successfully updated balance: ${newBalance.amount}"
-            )
-            //ResponseResult.Success("Successfully updated balance")
-        } catch (e: Exception) {
-            Log.e(FINANCE_REPOSITORY_TAG, "Add transaction error: ${e.message}")
-            //ResponseResult.Error(e.message.toString())
+    override suspend fun addTransaction(transaction: Transaction) : ResponseResult<String> {
+        if(balanceDao.getBalance().amount >= transaction.amount) {
+            try {
+                //count new balance (minus transaction amount)
+                val currentBalance = balanceDao.getBalance().amount
+                val newBalance = Balance(currentBalance - transaction.amount)
+                balanceDao.insertTransactionAndUpdateBalance(
+                    transaction.toTransactionEntity(),
+                    newBalance.toBalanceEntity()
+                )
+                Log.d(
+                    FINANCE_REPOSITORY_TAG,
+                    "addTransaction: Successfully updated balance: ${newBalance.amount}"
+                )
+                return ResponseResult.Success("Transaction is successful")
+            } catch (e: Exception) {
+                Log.e(FINANCE_REPOSITORY_TAG, "Add transaction error: ${e.message}")
+                return ResponseResult.Error("Error occurred during transaction")
+            }
         }
+        return ResponseResult.Error("Balance is not enough")
     }
 
     override suspend fun addBalance(balance: Balance) {
@@ -58,7 +63,6 @@ class FinanceRepositoryImpl @Inject constructor(
             Log.i(FINANCE_REPOSITORY_TAG, "getAllTransactions: ${allTransactions.size}")
             val transactions = allTransactions.map { entity ->
                 Transaction(
-                    id = entity.id,
                     amount = entity.amount,
                     category = entity.category,
                     timestamp = entity.timestamp
@@ -73,8 +77,7 @@ class FinanceRepositoryImpl @Inject constructor(
     override suspend fun getBalance(): ResponseResult<Balance> {
         Log.i(FINANCE_REPOSITORY_TAG, "getBalance: Fetching local data...")
         return try {
-            var balanceEntity = balanceDao.getBalance()
-            val balance = balanceEntity.toBalance()
+            val balance = balanceDao.getBalance().toBalance()
             Log.i(FINANCE_REPOSITORY_TAG, "getBalance: ${balance.amount}")
             ResponseResult.Success(balance)// can be with size 0
         } catch (e: Exception) {

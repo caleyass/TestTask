@@ -6,7 +6,7 @@ import com.obrio.test.domain.model.Transaction
 import kotlinx.coroutines.flow.Flow
 
 interface FinanceRepository {
-    suspend fun addTransaction(transaction: Transaction)
+    suspend fun addTransaction(transaction: Transaction) : ResponseResult<String>
 
     suspend fun getAllTransactions(): ResponseResult<List<Transaction>>
 

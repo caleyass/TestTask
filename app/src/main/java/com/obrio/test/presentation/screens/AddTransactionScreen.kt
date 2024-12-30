@@ -1,5 +1,6 @@
 package com.obrio.test.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,10 +27,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.obrio.test.R
+import com.obrio.test.domain.model.Transaction
 import com.obrio.test.presentation.components.PositiveNumberInputField
+import com.obrio.test.presentation.viewmodels.AddTransactionViewModel
 import com.obrio.test.utils.TransactionCategory
 
 /**
@@ -40,13 +47,21 @@ import com.obrio.test.utils.TransactionCategory
  * - Dropdown for selecting a category (groceries, taxi, electronics, restaurant, other).
  * - Button to confirm and add the transaction.
  * - Navigation back to the Transaction List Screen upon successful submission.
+ * - Toast message with transaction result
  */
 @Composable
 fun AddTransactionScreen(
-    onBackNavigate: () -> Unit
+    onBackNavigate: () -> Unit,
+    viewModel : AddTransactionViewModel = hiltViewModel()
 ) {
     var inputAmount by rememberSaveable { mutableDoubleStateOf(0.0) }
     var selectedCategory by rememberSaveable { mutableStateOf(TransactionCategory.GROCERIES) }
+    val response = viewModel.transactionResponse.collectAsState().value
+    val context = LocalContext.current
+
+    LaunchedEffect(response) {
+        response?.let{ Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+    }
 
     Column(
         modifier = Modifier
@@ -61,6 +76,12 @@ fun AddTransactionScreen(
         Spacer(modifier = Modifier.height(20.dp))
         Button({
             onBackNavigate()
+            viewModel.addTransaction(Transaction(
+                amount = inputAmount,
+                category = selectedCategory,
+                timestamp = System.currentTimeMillis()
+            ))
+
         }) {
             Text(stringResource(R.string.button_add))
         }

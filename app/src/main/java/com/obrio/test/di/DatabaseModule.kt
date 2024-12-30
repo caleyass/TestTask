@@ -36,16 +36,19 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideBitcoinDataDao(database: AppDatabase): BitcoinDataDao {
         return database.bitcoinDataDao()
     }
 
     @Provides
+    @Singleton
     fun provideBalanceDao(database: AppDatabase): BalanceDao {
         return database.balanceDao()
     }
 
     @Provides
+    @Singleton
     fun provideTransactionDao(database: AppDatabase): TransactionDao {
         return database.transactionDao()
     }

@@ -21,7 +21,7 @@ fun NavGraph(navController: NavHostController) {
             TransactionListScreen ( onNavigateToAddTransactionScreen = { navController.navigate(AddTransaction) })
         }
         composable<AddTransaction> {
-            AddTransactionScreen {navController.safeNavigateBackComposable()}
+            AddTransactionScreen (onBackNavigate = {navController.safeNavigateBackComposable()})
         }
     }
 }

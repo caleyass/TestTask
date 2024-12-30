@@ -43,9 +43,4 @@ object DomainModule {
         )
     }
 
-    @Provides
-    @Singleton
-    fun provideGetBitcoinUseCase(bitcoinRepository: BitcoinRepository) : GetBitcoinPriceUseCase{
-        return GetBitcoinPriceUseCase(bitcoinRepository = bitcoinRepository)
-    }
 }

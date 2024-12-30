@@ -37,9 +37,12 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.obrio.test.R
+import com.obrio.test.domain.model.Transaction
 import com.obrio.test.presentation.components.PositiveNumberInputField
+import com.obrio.test.presentation.model.TransactionUiModel
 import com.obrio.test.presentation.viewmodels.BalanceViewModel
 import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
+import com.obrio.test.presentation.viewmodels.TransactionListViewModel
 
 /**
  * Composable for the Transaction List Screen.
@@ -79,7 +82,7 @@ fun TransactionListScreen(
         ) {
             if(balance.data != null ){
                 Text(
-                    "Your balance: ${balance.data?.amount}",
+                    "Your balance: ${balance.data?.amount} BTC",
                     style = MaterialTheme.typography.labelLarge
                 )
             }
@@ -94,6 +97,7 @@ fun TransactionListScreen(
             }) {
                 Text(stringResource(R.string.button_add_transaction))
             }
+            TransactionList()
         }
 
         if (showPopup) {
@@ -112,6 +116,26 @@ fun BalanceBox(
     showPopup : () -> Unit
 ) {
 
+}
+
+@Composable
+fun TransactionList(transactionListViewModel: TransactionListViewModel = hiltViewModel()){
+    val transactionList = transactionListViewModel.transactionList.collectAsState().value
+    transactionList.data?.forEach {
+        TransactionListItem(it)
+    }
+}
+
+@Composable
+fun TransactionListItem(transaction: TransactionUiModel){
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(transaction.displayDate)
+        Text(transaction.categoryName)
+        Spacer(modifier = Modifier.weight(1f))
+        Text(transaction.amountFormatted)
+    }
 }
 
 /**

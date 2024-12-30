@@ -6,7 +6,7 @@ import com.obrio.test.data.model.ResponseResult
 import com.obrio.test.domain.model.Balance
 import com.obrio.test.domain.usecase.AddBalanceUseCase
 import com.obrio.test.domain.usecase.GetBalanceUseCase
-import com.obrio.test.presentation.model.BalanceStateHolder
+import com.obrio.test.presentation.model.stateHolder.BalanceStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

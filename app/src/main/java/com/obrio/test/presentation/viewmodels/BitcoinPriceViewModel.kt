@@ -3,7 +3,7 @@ package com.obrio.test.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obrio.test.domain.usecase.GetBitcoinPriceUseCase
-import com.obrio.test.presentation.model.BitcoinPriceStateHolder
+import com.obrio.test.presentation.model.stateHolder.BitcoinPriceStateHolder
 import com.obrio.test.data.model.ResponseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

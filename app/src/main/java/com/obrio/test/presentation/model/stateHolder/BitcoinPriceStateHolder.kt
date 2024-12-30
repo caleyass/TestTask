@@ -1,4 +1,4 @@
-package com.obrio.test.presentation.model
+package com.obrio.test.presentation.model.stateHolder
 
 import com.obrio.test.domain.model.BitcoinPrice
 

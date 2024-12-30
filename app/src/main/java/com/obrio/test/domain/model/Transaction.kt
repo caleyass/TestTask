@@ -4,6 +4,6 @@ import com.obrio.test.utils.TransactionCategory
 
 data class Transaction(
     val amount: Double,
-    val category: TransactionCategory,
+    val category: TransactionCategory?,
     val timestamp: Long
 )

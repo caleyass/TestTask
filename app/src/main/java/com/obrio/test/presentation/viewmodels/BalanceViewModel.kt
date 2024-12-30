@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obrio.test.data.model.ResponseResult
 import com.obrio.test.domain.model.Balance
-import com.obrio.test.domain.usecase.AddBalanceUseCase
+import com.obrio.test.domain.model.Transaction
+import com.obrio.test.domain.usecase.AddTransactionUseCase
 import com.obrio.test.domain.usecase.GetBalanceUseCase
 import com.obrio.test.presentation.model.stateHolder.BalanceStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BalanceViewModel @Inject constructor(
     private val getBalanceUseCase: GetBalanceUseCase,
-    private val addBalanceUseCase: AddBalanceUseCase
+    private val addTransactionUseCase: AddTransactionUseCase
 ) : ViewModel() {
     private val _balance = MutableStateFlow(BalanceStateHolder(isLoading = true))
     val balance: StateFlow<BalanceStateHolder> get() = _balance
@@ -25,7 +26,7 @@ class BalanceViewModel @Inject constructor(
         getBalance()
     }
 
-    fun getBalance(){
+    private fun getBalance(){
         viewModelScope.launch {
              getBalanceUseCase().collect{
                  _balance.value = when (it){
@@ -45,7 +46,11 @@ class BalanceViewModel @Inject constructor(
 
     fun addBalance(amount : Double){
         viewModelScope.launch {
-            addBalanceUseCase(Balance(amount))
+            addTransactionUseCase(Transaction(
+                amount = amount,
+                category = null,
+                timestamp = System.currentTimeMillis()
+            ))
         }
     }
 }

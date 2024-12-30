@@ -10,8 +10,6 @@ interface FinanceRepository {
 
     suspend fun getAllTransactions(): Flow<ResponseResult<List<Transaction>>>
 
-    suspend fun addBalance(balance: Balance)
-
     suspend fun getBalance(): ResponseResult<Balance>
 
     suspend fun observeBalance() : Flow<Balance>

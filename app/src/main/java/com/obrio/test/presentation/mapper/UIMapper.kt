@@ -7,7 +7,7 @@ import com.obrio.test.utils.convertMillisToDate
 fun Transaction.toTransactionUiModel(): TransactionUiModel {
     return TransactionUiModel(
         amountFormatted = "${this.amount} BTC",
-        categoryName = this.category.displayName,
+        categoryName = this.category?.displayName ?: "Add",
         displayDate = this.timestamp.convertMillisToDate()
     )
 }

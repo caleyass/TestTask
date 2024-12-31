@@ -20,7 +20,7 @@ import javax.inject.Inject
 class BalanceViewModel @Inject constructor(
     private val getBalanceUseCase: GetBalanceUseCase,
     private val addTransactionUseCase: AddTransactionUseCase
-) : ViewModel(), LifecycleEventObserver {
+) : ViewModel() {
     private val _balance = MutableStateFlow(BalanceStateHolder(isLoading = true))
     val balance: StateFlow<BalanceStateHolder> get() = _balance
 
@@ -47,24 +47,16 @@ class BalanceViewModel @Inject constructor(
     }
 
     fun addBalance(amount: Double) {
-        viewModelScope.launch {
-            addTransactionUseCase(
-                Transaction(
-                    amount = amount,
-                    category = null,
-                    timestamp = System.currentTimeMillis()
+        if(amount > 0) {
+            viewModelScope.launch {
+                addTransactionUseCase(
+                    Transaction(
+                        amount = amount,
+                        category = null,
+                        timestamp = System.currentTimeMillis()
+                    )
                 )
-            )
-        }
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_RESUME) {
-            println("ON RESUME")
-            getBalance()
-        }
-        if (event == Lifecycle.Event.ON_PAUSE){
-            println("ON PAUSE")
+            }
         }
     }
 }

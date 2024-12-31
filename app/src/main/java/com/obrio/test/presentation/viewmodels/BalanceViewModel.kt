@@ -1,9 +1,11 @@
 package com.obrio.test.presentation.viewmodels
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obrio.test.data.model.ResponseResult
-import com.obrio.test.domain.model.Balance
 import com.obrio.test.domain.model.Transaction
 import com.obrio.test.domain.usecase.AddTransactionUseCase
 import com.obrio.test.domain.usecase.GetBalanceUseCase
@@ -18,7 +20,7 @@ import javax.inject.Inject
 class BalanceViewModel @Inject constructor(
     private val getBalanceUseCase: GetBalanceUseCase,
     private val addTransactionUseCase: AddTransactionUseCase
-) : ViewModel() {
+) : ViewModel(), LifecycleEventObserver {
     private val _balance = MutableStateFlow(BalanceStateHolder(isLoading = true))
     val balance: StateFlow<BalanceStateHolder> get() = _balance
 
@@ -44,15 +46,25 @@ class BalanceViewModel @Inject constructor(
         }
     }
 
-    fun addBalance(amount : Double){
-        if(amount > 0) {
-            viewModelScope.launch {
-                addTransactionUseCase(Transaction(
+    fun addBalance(amount: Double) {
+        viewModelScope.launch {
+            addTransactionUseCase(
+                Transaction(
                     amount = amount,
                     category = null,
                     timestamp = System.currentTimeMillis()
-                ))
-            }
+                )
+            )
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_RESUME) {
+            println("ON RESUME")
+            getBalance()
+        }
+        if (event == Lifecycle.Event.ON_PAUSE){
+            println("ON PAUSE")
         }
     }
 }

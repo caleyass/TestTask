@@ -1,7 +1,10 @@
 package com.obrio.test.presentation.viewmodels
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.withResumed
 import com.obrio.test.domain.usecase.GetBitcoinPriceUseCase
 import com.obrio.test.presentation.model.stateHolder.BitcoinPriceStateHolder
 import com.obrio.test.data.model.ResponseResult
@@ -19,11 +22,7 @@ class BitcoinPriceViewModel @Inject constructor(
     private val _bitcoinPrice = MutableStateFlow(BitcoinPriceStateHolder(isLoading = true))
     val bitcoinPrice: StateFlow<BitcoinPriceStateHolder> get() = _bitcoinPrice
 
-    init {
-        getBitcoinPrice()
-    }
-
-    private fun getBitcoinPrice(){
+    fun getBitcoinPrice(){
         viewModelScope.launch {
             getBitcoinPriceUseCase().collect {
                 _bitcoinPrice.value = when (it){

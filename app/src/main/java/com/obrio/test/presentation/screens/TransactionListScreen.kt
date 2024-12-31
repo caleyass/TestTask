@@ -1,7 +1,6 @@
 package com.obrio.test.presentation.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,21 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,20 +34,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.compose.LazyPagingItems
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.obrio.test.R
-import com.obrio.test.data.model.ResponseResult
-import com.obrio.test.domain.model.Transaction
 import com.obrio.test.presentation.components.PositiveNumberInputField
 import com.obrio.test.presentation.mapper.toTransactionUiModel
 import com.obrio.test.presentation.model.TransactionUiModel
 import com.obrio.test.presentation.viewmodels.BalanceViewModel
 import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
 import com.obrio.test.presentation.viewmodels.TransactionListViewModel
+
 
 /**
  * Composable for the Transaction List Screen.
@@ -211,8 +204,9 @@ fun TopUpBalancePopUp(
  * A Composable that displays the current Bitcoin price.
  *
  * This composable observes the `bitcoinPrice` state from the [BitcoinPriceViewModel],
- * which contains information about the Bitcoin price and its loading/error state. Based on
- * the state, it renders one of the following:
+ * which contains information about the Bitcoin price and its loading/error state.
+ * Triggers getting price every ON RESUME
+ * Based on the state, it renders one of the following:
  *
  * - A loading indicator (`CircularProgressIndicator`) when `isLoading` is true.
  * - An error message (`Text`) when `error` is not empty, which indicates something went wrong.
@@ -225,6 +219,12 @@ fun BitcoinPriceText(
     viewModel: BitcoinPriceViewModel = hiltViewModel()
 ) {
     val bitcoinPriceState = viewModel.bitcoinPrice.collectAsState().value
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        println("ON RESUME")
+        viewModel.getBitcoinPrice()
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {

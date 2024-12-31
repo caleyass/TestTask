@@ -1,12 +1,12 @@
 package com.obrio.test.data.repository
 
 import android.util.Log
+import androidx.paging.PagingSource
 import com.obrio.test.data.local.dao.BalanceDao
 import com.obrio.test.data.local.dao.TransactionDao
-import com.obrio.test.data.local.entities.BalanceEntity
+import com.obrio.test.data.local.entities.TransactionEntity
 import com.obrio.test.data.mapper.toBalance
 import com.obrio.test.data.mapper.toBalanceEntity
-import com.obrio.test.data.mapper.toTransaction
 import com.obrio.test.data.mapper.toTransactionEntity
 import com.obrio.test.data.model.ResponseResult
 import com.obrio.test.domain.model.Balance
@@ -50,12 +50,10 @@ class FinanceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAllTransactions(): Flow<ResponseResult<List<Transaction>>> {
-        Log.i(FINANCE_REPOSITORY_TAG, "getAllTransactions: Fetching local data...")
-        return transactionDao.getAllTransactions().map { transactionEntities ->
-            val transactions = transactionEntities.map { it.toTransaction() }
-            ResponseResult.Success(transactions)
-        }
+    override fun getTransactionsPaged(): PagingSource<Int, TransactionEntity> {
+        Log.i(FINANCE_REPOSITORY_TAG, "getTransactions: Fetching local data...")
+        return transactionDao.getTransactionsPaged()
+
     }
 
     override suspend fun getBalance(): ResponseResult<Balance> {

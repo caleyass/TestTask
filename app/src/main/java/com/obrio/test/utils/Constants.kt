@@ -7,4 +7,7 @@ object Constants{
 
     //Api
     const val BASE_URL = "https://api.coindesk.com/v1/bpi/"
+
+    //Paging
+    const val PAGING_SIZE = 20
 }

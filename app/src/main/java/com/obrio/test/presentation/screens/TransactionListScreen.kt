@@ -1,12 +1,14 @@
 package com.obrio.test.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,15 +33,23 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.obrio.test.R
+import com.obrio.test.data.model.ResponseResult
 import com.obrio.test.domain.model.Transaction
 import com.obrio.test.presentation.components.PositiveNumberInputField
+import com.obrio.test.presentation.mapper.toTransactionUiModel
 import com.obrio.test.presentation.model.TransactionUiModel
 import com.obrio.test.presentation.viewmodels.BalanceViewModel
 import com.obrio.test.presentation.viewmodels.BitcoinPriceViewModel
@@ -91,7 +102,6 @@ fun TransactionListScreen(
             }) {
                 Text(stringResource(R.string.button_top_up_balance))
             }
-            //BalanceBox(showPopup = {showPopup = true})
             Button({
                 onNavigateToAddTransactionScreen()
             }) {
@@ -110,22 +120,42 @@ fun TransactionListScreen(
     }
 }
 
+/**
+ * Composable for the Transaction List Screen.
+ * Displays a list of user's transactions in a lazy column with support for pagination.
+ * Each transaction includes details like timestamp, category, and formatted Bitcoin amount.
+ *
+ * Features:
+ * - Uses Jetpack Compose's LazyColumn for efficient rendering of paginated transactions.
+ * - Supports pagination using Paging3 library and collects the flow of transactions from ViewModel.
+ * - Transactions are uniquely keyed by their timestamp for optimized UI performance.
+ * - Automatically updates the list when new transactions are loaded.
+ *
+ * @param transactionListViewModel The [TransactionListViewModel] that provides the transaction data,
+ * injected using Hilt.
+ */
 @Composable
-fun BalanceBox(
+fun TransactionList(transactionListViewModel: TransactionListViewModel = hiltViewModel()) {
+    val transactionList = transactionListViewModel.transactionList.collectAsLazyPagingItems()
 
-    showPopup : () -> Unit
-) {
-
-}
-
-@Composable
-fun TransactionList(transactionListViewModel: TransactionListViewModel = hiltViewModel()){
-    val transactionList = transactionListViewModel.transactionList.collectAsState().value
-    transactionList.data?.forEach {
-        TransactionListItem(it)
+    LazyColumn {
+        items(
+            transactionList.itemCount,
+            key  = transactionList.itemKey { it.timestamp },
+            contentType = transactionList.itemContentType { "Transactions" }
+        ){ index ->
+            val transaction = transactionList[index]
+            transaction?.let { TransactionListItem(transaction.toTransactionUiModel()) }
+        }
     }
 }
 
+/**
+ * Composable for rendering an individual transaction item.
+ * Displays details such as the date, category, and Bitcoin amount.
+ *
+ * @param transaction A [TransactionUiModel] representing the transaction details to display.
+ */
 @Composable
 fun TransactionListItem(transaction: TransactionUiModel){
     Row(

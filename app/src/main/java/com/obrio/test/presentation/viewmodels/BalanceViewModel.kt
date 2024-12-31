@@ -45,12 +45,14 @@ class BalanceViewModel @Inject constructor(
     }
 
     fun addBalance(amount : Double){
-        viewModelScope.launch {
-            addTransactionUseCase(Transaction(
-                amount = amount,
-                category = null,
-                timestamp = System.currentTimeMillis()
-            ))
+        if(amount > 0) {
+            viewModelScope.launch {
+                addTransactionUseCase(Transaction(
+                    amount = amount,
+                    category = null,
+                    timestamp = System.currentTimeMillis()
+                ))
+            }
         }
     }
 }
